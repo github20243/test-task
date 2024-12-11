@@ -1,15 +1,22 @@
-// request/productsRequest.ts
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios, { AxiosError } from "axios";
+import { Product } from '../productSlice/productsSlice'; // Убедитесь, что путь правильный
 
-const BASE_URL = "https://fakestoreapi.com";
-const CREATE_URL = "https://ffd2ce7db1e400c6.mokky.dev";
+const BASE_URL = 'https://fakestoreapi.com';
 
 // Получение всех продуктов
-export const fetchProducts = createAsyncThunk("products/fetchProducts", async () => {
-  const response = await axios.get(`${BASE_URL}/products`);
-  return response.data;
-});
+export const fetchProducts = createAsyncThunk(
+  "products/fetchProducts",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/products`); // Removed redundant '/products'
+      return response.data;
+    } catch (error) {
+      const err = error as AxiosError;
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
 
 // Получение продукта по ID
 export const fetchProductById = createAsyncThunk(
@@ -23,15 +30,22 @@ export const fetchProductById = createAsyncThunk(
 // Создание нового продукта
 export const createNewProduct = createAsyncThunk(
   "products/createNewProduct",
-  async (newProduct: { title: string; description: string; price: number; image: string }, { rejectWithValue }) => {
+  async (newProduct: Product) => {
+    const response = await axios.post(`${BASE_URL}/products`, newProduct); // Убедитесь, что BASE_URL правильный
+    return response.data; // Возвращаем данные нового продукта
+  }
+);
+
+// Удаление товара
+export const deleteProduct = createAsyncThunk(
+  "products/deleteProduct",
+  async (id: number, { rejectWithValue }) => {
     try {
-      // Используем правильный URL API для добавления нового продукта
-      const response = await axios.post(`${CREATE_URL}/product`, newProduct);
-      return response.data; // Возвращаем данные продукта после успешного добавления
+      await axios.delete(`${BASE_URL}/products/${id}`);
+      return id;
     } catch (error) {
       const err = error as AxiosError;
-      console.error("Error creating product:", err);
-      return rejectWithValue(err.response?.data || err.message); // Если ошибка, возвращаем сообщение об ошибке
+      return rejectWithValue(err.response?.data || err.message);
     }
   }
 );

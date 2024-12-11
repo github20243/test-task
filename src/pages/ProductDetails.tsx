@@ -41,7 +41,7 @@ const ProductDetail: React.FC = () => {
 	}, [dispatch, id]);
 
 	if (!currentProduct) {
-		return <Typography>Loading...</Typography>;
+		return <Typography>Loading...❤️</Typography>;
 	}
 
 	return (
