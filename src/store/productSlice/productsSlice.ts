@@ -13,6 +13,8 @@ export interface Product {
 	description: string;
 	price: number;
 	image: string;
+	category?: string;
+	isFavorite?: boolean;
 }
 
 interface ProductsState {
@@ -23,6 +25,12 @@ interface ProductsState {
 	error: string | null;
 	deletedProductIds: number[];
 	addedProducts: Product[];
+	filter: {
+		category: string; // Добавляем фильтр по категории
+		minPrice: number; // Фильтр по минимальной цене
+		maxPrice: number; // Фильтр по максимальной цене
+		searchQuery: string; // Поиск по названию
+	};
 }
 
 const initialState: ProductsState = {
@@ -35,6 +43,12 @@ const initialState: ProductsState = {
 		localStorage.getItem("deletedProductIds") || "[]"
 	),
 	addedProducts: JSON.parse(localStorage.getItem("addedProducts") || "[]"),
+	filter: {
+		category: "",
+		minPrice: 0,
+		maxPrice: 1000,
+		searchQuery: "",
+	},
 };
 
 const productsSlice = createSlice({
@@ -43,13 +57,23 @@ const productsSlice = createSlice({
 	reducers: {
 		toggleFavorite(state, action: PayloadAction<number>) {
 			const productId = action.payload;
+			// Проверка, если productId уже в избранном
 			if (state.favorites.includes(productId)) {
+				// Удаляем продукт из избранного
 				state.favorites = state.favorites.filter((id) => id !== productId);
 			} else {
+				// Добавляем продукт в избранное
 				state.favorites.push(productId);
 			}
-			localStorage.setItem("favorites", JSON.stringify(state.favorites));
+
+			// Обновляем localStorage с актуализированным списком
+			try {
+				localStorage.setItem("favorites", JSON.stringify(state.favorites));
+			} catch (error) {
+				console.error("Ошибка при сохранении в localStorage:", error);
+			}
 		},
+
 		setDeletedProductIds(state, action: PayloadAction<number[]>) {
 			state.deletedProductIds = action.payload;
 			localStorage.setItem(
@@ -64,6 +88,19 @@ const productsSlice = createSlice({
 				JSON.stringify(state.addedProducts)
 			);
 		},
+		setCategoryFilter(state, action: PayloadAction<string>) {
+			state.filter.category = action.payload;
+		},
+		setPriceFilter(
+			state,
+			action: PayloadAction<{ minPrice: number; maxPrice: number }>
+		) {
+			state.filter.minPrice = action.payload.minPrice;
+			state.filter.maxPrice = action.payload.maxPrice;
+		},
+		setSearchQuery(state, action: PayloadAction<string>) {
+			state.filter.searchQuery = action.payload;
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -72,15 +109,39 @@ const productsSlice = createSlice({
 				state.error = null;
 			})
 			.addCase(fetchProducts.fulfilled, (state, action) => {
-				const filteredProducts = action.payload.filter(
-					(product: Product) => !state.deletedProductIds.includes(product.id)
-				);
+				const filteredProducts = action.payload
+					.filter(
+						(product: Product) => !state.deletedProductIds.includes(product.id)
+					)
+					.filter(
+						(product: Product) =>
+							product.price >= state.filter.minPrice &&
+							product.price <= state.filter.maxPrice
+					)
+					.filter((product: Product) =>
+						state.filter.category
+							? product.category === state.filter.category
+							: true
+					)
+					.filter((product: Product) =>
+						state.filter.searchQuery
+							? product.title
+									.toLowerCase()
+									.includes(state.filter.searchQuery.toLowerCase())
+							: true
+					);
 
+				// Проверяем, чтобы не добавлять повторяющиеся товары
 				const newProducts = filteredProducts.filter(
-					(product: Product) => !state.products.some((p) => p.id === product.id)
+					(product: Product) =>
+						!state.products.some(
+							(existingProduct) => existingProduct.id === product.id
+						)
 				);
 
+				// Добавляем только новые товары
 				state.products = [...state.products, ...newProducts];
+
 				localStorage.setItem("products", JSON.stringify(state.products)); // Сохраняем в localStorage
 				state.isLoading = false;
 			})

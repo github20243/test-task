@@ -12,15 +12,18 @@ import { Favorite, FavoriteBorder, Delete } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 interface ProductCardProps {
-	id: number;
-	title: string;
-	description: string;
-	image: string;
-	price: number;
-	isFavorite: boolean;
-	onToggleFavorite: () => void;
-	onDelete: (id: number) => void;
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  price: number;
+  category?: string;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+  onDelete: (id: number) => void;  // Обновлено
 }
+
+
 
 const StyledCard = styled(Card)(({}) => ({
 	maxWidth: 370,
@@ -82,14 +85,14 @@ const StyledPrice = styled(Typography)({
 });
 
 const ProductCard: React.FC<ProductCardProps> = ({
-	id,
-	title,
-	description,
-	image,
-	price,
-	isFavorite,
-	onToggleFavorite,
-	onDelete,
+  id,
+  title,
+  description,
+  image,
+  price,
+  isFavorite,
+  onToggleFavorite,
+  onDelete,
 }) => {
 	const navigate = useNavigate();
 
