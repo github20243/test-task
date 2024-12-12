@@ -4,6 +4,7 @@ import {
 	fetchProductById,
 	createNewProduct,
 	deleteProduct as deleteProductRequest,
+	editProduct,
 } from "../request/productsRequest";
 
 export interface Product {
@@ -25,9 +26,9 @@ interface ProductsState {
 }
 
 const initialState: ProductsState = {
-	products: [],
+	products: JSON.parse(localStorage.getItem("products") || "[]"),
 	currentProduct: null,
-	favorites: [],
+	favorites: JSON.parse(localStorage.getItem("favorites") || "[]"),
 	isLoading: false,
 	error: null,
 	deletedProductIds: JSON.parse(
@@ -47,6 +48,7 @@ const productsSlice = createSlice({
 			} else {
 				state.favorites.push(productId);
 			}
+			localStorage.setItem("favorites", JSON.stringify(state.favorites));
 		},
 		setDeletedProductIds(state, action: PayloadAction<number[]>) {
 			state.deletedProductIds = action.payload;
@@ -79,8 +81,10 @@ const productsSlice = createSlice({
 				);
 
 				state.products = [...state.products, ...newProducts];
+				localStorage.setItem("products", JSON.stringify(state.products)); // Сохраняем в localStorage
 				state.isLoading = false;
 			})
+
 			.addCase(fetchProducts.rejected, (state, action) => {
 				state.isLoading = false;
 				state.error = action.payload as string;
@@ -93,7 +97,9 @@ const productsSlice = createSlice({
 				const newProduct = action.payload; // Получаем новый продукт из действия
 
 				// Проверяем, существует ли товар уже в addedProducts
-				const isAlreadyAdded = state.addedProducts.some((p) => p.id === newProduct.id);
+				const isAlreadyAdded = state.addedProducts.some(
+					(p) => p.id === newProduct.id
+				);
 
 				if (!isAlreadyAdded) {
 					state.addedProducts.push(newProduct); // Добавляем новый продукт только в добавленные
@@ -137,6 +143,55 @@ const productsSlice = createSlice({
 				state.isLoading = false;
 			})
 			.addCase(deleteProductRequest.rejected, (state, action) => {
+				state.isLoading = false;
+				state.error = action.payload as string;
+			})
+			.addCase(fetchProductById.pending, (state) => {
+				state.isLoading = true;
+				state.error = null;
+			})
+			.addCase(fetchProductById.fulfilled, (state, action) => {
+				state.currentProduct = action.payload;
+				state.isLoading = false;
+			})
+			.addCase(fetchProductById.rejected, (state, action) => {
+				state.isLoading = false;
+				state.error = action.payload as string;
+			})
+			.addCase(editProduct.pending, (state) => {
+				state.isLoading = true;
+				state.error = null;
+			})
+			.addCase(editProduct.fulfilled, (state, action) => {
+				const updatedProduct = action.payload;
+
+				// Обновляем продукт в списке продуктов
+				const productIndex = state.products.findIndex(
+					(product) => product.id === updatedProduct.id
+				);
+				if (productIndex !== -1) {
+					state.products[productIndex] = updatedProduct;
+				}
+
+				// Обновляем продукт в addedProducts
+				const addedProductIndex = state.addedProducts.findIndex(
+					(product) => product.id === updatedProduct.id
+				);
+				if (addedProductIndex !== -1) {
+					state.addedProducts[addedProductIndex] = updatedProduct;
+				}
+
+				// Сохраняем обновленные данные в localStorage
+				localStorage.setItem("products", JSON.stringify(state.products));
+				localStorage.setItem(
+					"addedProducts",
+					JSON.stringify(state.addedProducts)
+				);
+
+				state.isLoading = false;
+			})
+
+			.addCase(editProduct.rejected, (state, action) => {
 				state.isLoading = false;
 				state.error = action.payload as string;
 			});

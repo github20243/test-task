@@ -16,19 +16,19 @@ interface ProductCardProps {
 	title: string;
 	description: string;
 	image: string;
+	price: number;
 	isFavorite: boolean;
 	onToggleFavorite: () => void;
-	onDelete: () => void;
+	onDelete: (id: number) => void;
 }
 
-const StyledCard = styled(Card)({
-	maxWidth: 345,
-	margin: "20px",
+const StyledCard = styled(Card)(({}) => ({
+	maxWidth: 370,
 	position: "relative",
 	cursor: "pointer",
 	display: "flex",
 	flexDirection: "column",
-	height: "100%",
+	height: "500px",
 	transition: "transform 0.3s, box-shadow 0.3s",
 	borderRadius: "12px",
 	boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
@@ -36,17 +36,49 @@ const StyledCard = styled(Card)({
 		transform: "translateY(-5px)",
 		boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
 	},
-});
+}));
 
 const StyledCardContent = styled(CardContent)({
 	flexGrow: 1,
+	padding: "16px",
+	display: "flex",
+	flexDirection: "column",
+	justifyContent: "space-between",
 });
 
 const StyledBox = styled(Box)({
 	display: "flex",
 	justifyContent: "space-between",
-	padding: "8px",
+	padding: "8px 16px",
 	borderTop: "1px solid #e0e0e0",
+	backgroundColor: "#fafafa",
+	borderBottomLeftRadius: "12px",
+	borderBottomRightRadius: "12px",
+});
+
+const StyledDescription = styled(Typography)({
+	overflow: "hidden",
+	textOverflow: "ellipsis",
+	display: "-webkit-box",
+	WebkitLineClamp: 2,
+	WebkitBoxOrient: "vertical",
+	color: "red",
+	flexGrow: 1,
+	marginBottom: "8px",
+});
+
+const StyledTitle = styled(Typography)({
+	fontWeight: "bold",
+	fontSize: "16px",
+	lineHeight: 1.2,
+	marginBottom: "4px",
+});
+
+const StyledPrice = styled(Typography)({
+	fontWeight: "bold",
+	fontSize: "18px",
+	color: "#333",
+	marginTop: "8px",
 });
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -54,6 +86,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 	title,
 	description,
 	image,
+	price,
 	isFavorite,
 	onToggleFavorite,
 	onDelete,
@@ -68,37 +101,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
 		<StyledCard onClick={handleCardClick}>
 			<CardMedia
 				component="img"
-				height="140"
+				height="200"
 				image={image}
 				alt={title}
-				style={{ borderRadius: "12px 12px 0 0" }}
+				style={{
+					borderRadius: "12px 12px 0 0",
+					objectFit: "cover",
+				}}
 			/>
 			<StyledCardContent>
-				<Typography
-					gutterBottom
-					variant="h6"
-					component="div"
-					sx={{ fontWeight: "bold" }}>
+				<StyledTitle gutterBottom variant="h6">
 					{title}
-				</Typography>
-				<Typography
-					variant="body2"
-					color="text.secondary"
-					sx={{
-						overflow: "hidden",
-						textOverflow: "ellipsis",
-						display: "-webkit-box",
-						WebkitLineClamp: 2,
-						WebkitBoxOrient: "vertical",
-					}}>
+				</StyledTitle>
+				<StyledDescription variant="body2" color="text.secondary">
 					{description}
-				</Typography>
+				</StyledDescription>
+				<StyledPrice variant="body2">{price}</StyledPrice>
 			</StyledCardContent>
 			<StyledBox onClick={(e) => e.stopPropagation()}>
-				<IconButton onClick={onToggleFavorite} color="primary">
+				<IconButton onClick={() => onToggleFavorite()} color="primary">
 					{isFavorite ? <Favorite /> : <FavoriteBorder />}
 				</IconButton>
-				<IconButton onClick={onDelete} color="error">
+				<IconButton onClick={() => onDelete(id)} color="error">
 					<Delete />
 				</IconButton>
 			</StyledBox>
