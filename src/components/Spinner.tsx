@@ -17,14 +17,11 @@ const Spinner: React.FC<SpinnerProps> = ({ isLoading }) => {
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
 
-        {/* Планета, состоящая из частиц */}
         <ParticlePlanet />
 
-        {/* Управление камерой */}
         <OrbitControls />
       </Canvas>
 
-      {/* Текст "Загрузка..." внизу */}
       <SpinnerText>Загрузка...</SpinnerText>
     </SpinnerOverlay>
   );
@@ -32,18 +29,15 @@ const Spinner: React.FC<SpinnerProps> = ({ isLoading }) => {
 
 export default Spinner;
 
-// Компонент для планеты, состоящей из частиц
 const ParticlePlanet: React.FC = () => {
   const particlesRef = useRef<THREE.InstancedMesh>(null);
 
-  // Количество частц и радиус планеты
-  const particleCount = 1000; // Увеличиваем количество частиц
-  const radius = 2; // Сохраняем радиус планеты на 2
+  const particleCount = 1000;
+  const radius = 2; 
 
-  // Позиции частиц на сфере (распределение по поверхности сферы)
   const particlePositions = Array.from({ length: particleCount }).map(() => {
-    const phi = Math.acos(2 * Math.random() - 1); // угол от полюса
-    const theta = Math.random() * 2 * Math.PI; // угол по экватору
+    const phi = Math.acos(2 * Math.random() - 1); 
+    const theta = Math.random() * 2 * Math.PI; 
 
     const x = radius * Math.sin(phi) * Math.cos(theta);
     const y = radius * Math.sin(phi) * Math.sin(theta);
@@ -52,7 +46,6 @@ const ParticlePlanet: React.FC = () => {
     return [x, y, z];
   });
 
-  // Анимация вращения частиц
   useFrame(() => {
     if (particlesRef.current) {
       particlesRef.current.rotation.y += 0.01;
@@ -72,13 +65,12 @@ const ParticlePlanet: React.FC = () => {
 
   return (
     <instancedMesh ref={particlesRef} args={[new THREE.BufferGeometry(), new THREE.MeshBasicMaterial(), particleCount]}>
-      <sphereGeometry args={[0.015, 8, 8]} />  {/* Уменьшаем размер частиц */}
+      <sphereGeometry args={[0.015, 8, 8]} />  
       <meshStandardMaterial color="#ffffff" />
     </instancedMesh>
   );
 };
 
-// Стили для фона и текста
 const SpinnerOverlay = styled("div")({
   position: "fixed",
   top: 0,
@@ -87,18 +79,18 @@ const SpinnerOverlay = styled("div")({
   height: "100vh",
   display: "flex",
   flexDirection: "column",
-  justifyContent: "flex-end", // Текст внизу
+  justifyContent: "flex-end",
   alignItems: "center",
-  background: "linear-gradient(to bottom, #0f0f1f, #292939)", // Темный космический фон
+  background: "linear-gradient(to bottom, #0f0f1f, #292939)",
   zIndex: 9999,
-  overflow: "hidden", // Для предотвращения прокрутки
+  overflow: "hidden", 
 });
 
 const SpinnerText = styled("div")({
   color: "#ffffff",
   fontSize: "18px",
   fontWeight: "bold",
-  marginBottom: "40px", // Отступ снизу, чтобы текст не был прижат к экрану
+  marginBottom: "40px", 
 	position: "absolute",
 	bottom: "60px",
 	fontFamily: "monospace"

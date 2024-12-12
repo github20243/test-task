@@ -13,7 +13,7 @@ export const fetchProducts = createAsyncThunk(
       return response.data;
     } catch (error) {
       const err = error as AxiosError;
-      toast.error("Failed to fetch products: " + (err.response?.data || err.message)); // Добавляем уведомление
+      toast.error("Не удалось загрузить продукты: " + (err.response?.data || err.message)); 
       return rejectWithValue(err.response?.data || err.message);
     }
   }
@@ -27,7 +27,7 @@ export const fetchProductById = createAsyncThunk(
       return response.data;
     } catch (error) {
       const err = error as AxiosError;
-      toast.error("Failed to fetch product: " + (err.response?.data || err.message)); // Добавляем уведомление
+      toast.error("Не удалось загрузить продукт: " + (err.response?.data || err.message)); 
       return rejectWithValue(err.response?.data || err.message);
     }
   }
@@ -38,11 +38,11 @@ export const createNewProduct = createAsyncThunk(
   async (newProduct: Product, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${BASE_URL}/products`, newProduct);
-      toast.success("Product created successfully!"); // Добавляем уведомление об успешном создании
+      toast.success("Продукт успешно создан!"); 
       return response.data;
     } catch (error) {
       const err = error as AxiosError;
-      toast.error("Failed to create product: " + (err.response?.data || err.message)); // Добавляем уведомление об ошибке
+      toast.error("Не удалось создать продукт: " + (err.response?.data || err.message)); 
       return rejectWithValue(err.response?.data || err.message);
     }
   }
@@ -53,11 +53,11 @@ export const deleteProduct = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       await axios.delete(`${BASE_URL}/products/${id}`);
-      toast.success("Product deleted successfully!"); // Добавляем уведомление об успешном удалении
+      toast.success("Продукт успешно удален!"); 
       return id;
     } catch (error) {
       const err = error as AxiosError;
-      toast.error("Failed to delete product: " + (err.response?.data || err.message)); // Добавляем уведомление об ошибке
+      toast.error("Не удалось удалить продукт: " + (err.response?.data || err.message));
       return rejectWithValue(err.response?.data || err.message);
     }
   }
@@ -68,11 +68,11 @@ export const editProduct = createAsyncThunk(
   async ({ id, updatedProduct }: { id: number; updatedProduct: Product }, { rejectWithValue }) => {
     try {
       const response = await axios.put(`${BASE_URL}/products/${id}`, updatedProduct);
-      toast.success("Product updated successfully!"); // Добавляем уведомление об успешном обновлении
+      toast.success("Продукт успешно обновлен!"); 
       return response.data;
     } catch (error) {
       const err = error as AxiosError;
-      toast.error("Failed to update product: " + (err.response?.data || err.message)); // Добавляем уведомление об ошибке
+      toast.error("Не удалось обновить продукт: " + (err.response?.data || err.message));
       return rejectWithValue(err.response?.data || err.message);
     }
   }

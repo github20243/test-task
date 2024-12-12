@@ -7,40 +7,14 @@ import { deleteProduct } from "../store/request/productsRequest";
 import { toggleFavorite } from "../store/productSlice/productsSlice";
 import Spinner from "../components/Spinner";
 
-const ProductsContainer = styled("div")({
-	padding: "20px",
-	backgroundColor: "#f4f4f9",
-	minHeight: "100vh",
-});
-
-const LoadingContainer = styled("div")({
-	display: "flex",
-	justifyContent: "center",
-	alignItems: "center",
-	height: "100vh",
-});
-
-const ProductsTitle = styled(Typography)({
-	textAlign: "center",
-	marginBottom: "20px",
-	fontWeight: "bold",
-	color: "#333",
-});
-
-const PaginationContainer = styled("div")({
-	display: "flex",
-	justifyContent: "center",
-	marginTop: "20px",
-});
-
 const Products: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const { products, favorites, isLoading, error, addedProducts } =
 		useAppSelector((state) => state.products);
 
 	const [currentPage, setCurrentPage] = useState(1);
-	const [productsPerPage] = useState(8); // Количество товаров на странице
-	const [searchTerm, setSearchTerm] = useState(""); // Строка поиска
+	const [productsPerPage] = useState(8);
+	const [searchTerm, setSearchTerm] = useState("");
 
 	useEffect(() => {
 		dispatch(fetchProducts());
@@ -50,16 +24,10 @@ const Products: React.FC = () => {
 		await dispatch(deleteProduct(id)).unwrap();
 	};
 
-	// Объединяем оба списка продуктов: полученные и добавленные
-	const displayedProducts = [
-		...products,
-		...addedProducts, // Локально добавленные продукты
-	];
+	const displayedProducts = [...products, ...addedProducts];
 
-	// Фильтруем продукты по строке поиска
 	const filteredProducts = displayedProducts.filter((product) => {
 		const lowerSearchTerm = searchTerm.toLowerCase();
-		// Проверяем в названии, описании и цене (если это число)
 		return (
 			product.title.toLowerCase().includes(lowerSearchTerm) ||
 			product.description.toLowerCase().includes(lowerSearchTerm) ||
@@ -67,12 +35,13 @@ const Products: React.FC = () => {
 		);
 	});
 
-	// Индексы товаров для текущей страницы
 	const indexOfLastProduct = currentPage * productsPerPage;
 	const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-	const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+	const currentProducts = filteredProducts.slice(
+		indexOfFirstProduct,
+		indexOfLastProduct
+	);
 
-	// Переключение на следующую страницу
 	const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
 	if (isLoading) {
@@ -99,8 +68,7 @@ const Products: React.FC = () => {
 		<ProductsContainer>
 			<ProductsTitle variant="h4">Our Products</ProductsTitle>
 
-			{/* Поле для поиска */}
-			<TextField
+			<StyledTextField
 				fullWidth
 				label="Search Products"
 				variant="outlined"
@@ -119,7 +87,6 @@ const Products: React.FC = () => {
 								description={product.description}
 								image={product.image}
 								price={product.price}
-								category={product.category} // Выводим категорию
 								isFavorite={favorites.includes(product.id)}
 								onToggleFavorite={() => dispatch(toggleFavorite(product.id))}
 								onDelete={() => handleDelete(product.id)}
@@ -133,7 +100,6 @@ const Products: React.FC = () => {
 				)}
 			</Grid>
 
-			{/* Пагинация */}
 			{totalPages > 1 && (
 				<PaginationContainer>
 					{[...Array(totalPages).keys()].map((number) => (
@@ -141,8 +107,7 @@ const Products: React.FC = () => {
 							key={number}
 							variant="outlined"
 							onClick={() => paginate(number + 1)}
-							style={{ margin: "0 5px" }}
-						>
+							style={{ margin: "0 5px" }}>
 							{number + 1}
 						</Button>
 					))}
@@ -153,3 +118,48 @@ const Products: React.FC = () => {
 };
 
 export default Products;
+
+const StyledTextField = styled(TextField)({
+	marginBottom: "20px",
+	backgroundColor: "#fff",
+	borderRadius: "8px",
+	boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+	"& .MuiInputBase-root": {
+		height: "50px",
+	},
+	"& .MuiOutlinedInput-notchedOutline": {
+		borderColor: "#ccc",
+	},
+	"&:hover .MuiOutlinedInput-notchedOutline": {
+		borderColor: "#00796b",
+	},
+	"& .MuiInputLabel-root": {
+		color: "#00796b",
+	},
+});
+
+const ProductsContainer = styled("div")({
+	padding: "20px",
+	backgroundColor: "#f4f4f9",
+	minHeight: "100vh",
+});
+
+const LoadingContainer = styled("div")({
+	display: "flex",
+	justifyContent: "center",
+	alignItems: "center",
+	height: "100vh",
+});
+
+const ProductsTitle = styled(Typography)({
+	textAlign: "center",
+	marginBottom: "20px",
+	fontWeight: "bold",
+	color: "#333",
+});
+
+const PaginationContainer = styled("div")({
+	display: "flex",
+	justifyContent: "center",
+	marginTop: "20px",
+});

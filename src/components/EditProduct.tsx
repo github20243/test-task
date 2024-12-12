@@ -20,7 +20,7 @@ const EditProduct: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchProductById(Number(id))); // Загружаем продукт при монтировании компонента
+      dispatch(fetchProductById(Number(id)));
     }
   }, [id, dispatch]);
 
@@ -31,7 +31,6 @@ const EditProduct: React.FC = () => {
       setPrice(currentProduct.price);
       setImage(currentProduct.image);
     } else {
-      // Если продукт не найден среди текущих данных, проверим локальные товары
       const localProduct = addedProducts.find((product) => product.id === Number(id));
       if (localProduct) {
         setTitle(localProduct.title);
@@ -43,7 +42,7 @@ const EditProduct: React.FC = () => {
   }, [currentProduct, id, addedProducts]);
 
   const handleSave = () => {
-    if (!id) return; // Проверяем, чтобы ID был доступен
+    if (!id) return; 
   
     const updatedProduct: Product = {
       id: Number(id),
@@ -53,18 +52,16 @@ const EditProduct: React.FC = () => {
       image,
     };
   
-    // Если продукт загружен с API, обновляем его
     if (currentProduct) {
       dispatch(editProduct({ id: Number(id), updatedProduct }))
         .unwrap()
         .then(() => {
-          navigate("/products"); // Переход после успешного сохранения
+          navigate("/products"); 
         })
         .catch((error) => {
           console.error("Failed to update product:", error);
         });
     } else {
-      // Если продукт локальный, обновляем локальные данные
       const updatedLocalProducts = addedProducts.map((product) =>
         product.id === updatedProduct.id ? updatedProduct : product
       );
@@ -75,7 +72,7 @@ const EditProduct: React.FC = () => {
   
 
   const handleCancel = () => {
-    navigate("/products"); // Переход к списку продуктов без изменений
+    navigate("/products"); 
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,9 +139,8 @@ const EditProduct: React.FC = () => {
           label="Image URL"
           fullWidth
           value={image}
-          onChange={handleImageChange} // Сохранение нового URL для изображения
+          onChange={handleImageChange} 
         />
-        {/* Добавляем предварительный просмотр изображения */}
         {image && (
           <div style={{ marginTop: 10 }}>
             <Typography variant="body1">Image Preview:</Typography>
@@ -163,7 +159,7 @@ const EditProduct: React.FC = () => {
         </Button>
         <Button
           variant="outlined"
-          color="secondary"
+          color="error"
           onClick={handleCancel}
           disabled={isLoading}
           sx={{ marginLeft: "10px" }}
